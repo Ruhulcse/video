@@ -12,7 +12,6 @@ module.exports.createUser = async (req, res, next) => {
     const hashPass = await hash.new(body.password);
     body.password = hashPass;
   }
-  body.role = "admin";
 
   try {
     const isExist = await userModel.findOne({ email: body.email });
@@ -20,6 +19,7 @@ module.exports.createUser = async (req, res, next) => {
       throw new ErrorHandler("User is already existed.", 409);
     }
     const newUser = await userModel.create(body);
+    console.log("new users ", newUser);
     let token = "";
     const payload = {
       id: newUser._id,
@@ -32,7 +32,7 @@ module.exports.createUser = async (req, res, next) => {
 
     res.send({
       status: true,
-      data: { token, name: newUser.name, id: user._id },
+      data: { token, user: newUser },
     });
   } catch (err) {
     console.log(err.message);
@@ -72,7 +72,7 @@ module.exports.getUserById = async (req, res, next) => {
     const { params } = req;
     const user = await userModel
       .findOne({ _id: params.id })
-      .select({ password: 0 })
+      .select({ password: 0 });
 
     if (!user) {
       throw new ErrorHandler("User not found.", 404);

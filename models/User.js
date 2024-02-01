@@ -4,7 +4,11 @@ mongoose.Promise = global.Promise;
 
 const userSchema = new Schema(
   {
-    name: {
+    first_name: {
+      type: String,
+      trim: true,
+    },
+    last_name: {
       type: String,
       trim: true,
     },
@@ -22,7 +26,8 @@ const userSchema = new Schema(
     },
     role: {
       type: String,
-      enum: ["admin"],
+      enum: ["admin", "user"],
+      default: "user",
     },
     status: {
       type: Boolean,
