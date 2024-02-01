@@ -1,5 +1,4 @@
 const express = require("express");
-var useragent = require("express-useragent");
 const app = express();
 const db = require("./db/db");
 const logger = require("morgan");
@@ -11,10 +10,7 @@ const cors = require("cors");
 require("./helpers/create_admin");
 
 require("dotenv").config();
-const expressip = require("express-ip");
-app.use(expressip().getIpInfoMiddleware);
 
-app.use(useragent.express());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
@@ -27,8 +23,12 @@ app.use("/public", express.static("public"));
 app.use(errorHandler);
 
 app.get("/", function (req, res) {
+  // console.log(req);
   const ipInfo = req.ipInfo;
-  var message = `Hey, you are browsing from ${ipInfo.city}, ${ipInfo.country}`;
+  console.log("ipinfo ", ipInfo);
+  const ipAddress = req.socket.remoteAddress;
+  console.log(ipAddress);
+  var message = `Hey, you are browsing from`;
   res.send(message);
 });
 
