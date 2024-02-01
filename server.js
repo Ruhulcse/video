@@ -8,8 +8,6 @@ const routes = require("./routes");
 const auth = require("./middlewares/auth");
 const errorHandler = require("./middlewares/errors");
 const cors = require("cors");
-const uuid = require("uuid");
-const { lookup } = require("geoip-lite");
 
 require("./helpers/create_admin");
 require("dotenv").config();
@@ -29,7 +27,12 @@ app.use(errorHandler);
 app.get("/", function (req, res) {
   const ipAddress = req.socket.remoteAddress;
   console.log(ipAddress);
-  // console.log(lookup(ipAddress)); // location of the user
+  console.log(lookup(ipAddress)); // location of the user
+  (async () => {
+    const test = await ipLocation(ipAddress);
+    console.log(test);
+    //=> { latitude: -33.8591, longitude: 151.2002, region: { name: "New South Wales" ... } ... }
+  })();
   // Check if the visitorId cookie exists
   if (req.cookies.visitorId) {
     console.log("Returning visitor with ID:", req.cookies.visitorId);

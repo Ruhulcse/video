@@ -1,5 +1,6 @@
 const hash = require("../helpers/password_hash");
 const userModel = require("../models/User");
+const visitorModel = require("../models/Visitor");
 const { ErrorHandler } = require("../utils/error");
 const { jwt } = require("my-helpmates");
 require("dotenv").config();
@@ -151,6 +152,37 @@ module.exports.loginUser = async (req, res, next) => {
     res.send({
       status: true,
       data: { token, name: user.name, role: user.role },
+    });
+  } catch (err) {
+    console.log(err.message);
+    next(err);
+  }
+};
+
+module.exports.visitor = async (req, res, next) => {
+  try {
+    const { body } = req;
+    const isIPexist = await visitorModel.findOne({
+      ip_address: body.ip_address,
+    });
+    // console.log("api called and ", isIPexist);
+    if (isIPexist) {
+      // Increment total_visit by 1 for existing IP
+      const updatedVisitor = await visitorModel.findOneAndUpdate(
+        { ip_address: body.ip_address },
+        { $inc: { total_visit: 1 } }, // $inc operator to increment total_visit
+        { new: true } // Return the updated document
+      );
+      // console.log("Updated visitor:", updatedVisitor);
+    } else {
+      console.log("not exist ");
+      const newUser = await visitorModel.create(body);
+      console.log("new users ", newUser);
+    }
+
+    res.send({
+      status: true,
+      data: {},
     });
   } catch (err) {
     console.log(err.message);
