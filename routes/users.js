@@ -10,6 +10,7 @@ const {
   updateUserById,
   deleteUserById,
   visitor,
+  stats,
 } = require("../controllers/user");
 
 // System Routes
@@ -20,6 +21,7 @@ router.post("/login", loginUser);
 // router.post('/forgot-password', forgotPassword);
 // router.post('/reset-password', resetPassword);
 router.post("/visitor", visitor);
+router.get("/stats", stats);
 router.post("/signup", createUser);
 router.get("/api/users", getUsers);
 router.get("/api/users/:id", getUserById);

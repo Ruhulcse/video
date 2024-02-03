@@ -190,6 +190,39 @@ module.exports.visitor = async (req, res, next) => {
   }
 };
 
+module.exports.stats = async (req, res, next) => {
+  try {
+    // Total visitor count
+    const totalVisitor = await visitorModel.countDocuments();
+
+    // Total views
+    const totalViewsResult = await visitorModel.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalViews: { $sum: "$total_visit" },
+        },
+      },
+    ]);
+
+    const totalViews =
+      totalViewsResult.length > 0 ? totalViewsResult[0].totalViews : 0;
+
+    const response = {
+      totalVisitor,
+      totalViews,
+    };
+
+    res.status(200).json({
+      status: true,
+      data: response,
+    });
+  } catch (error) {
+    console.log(error.message);
+    next(error);
+  }
+};
+
 // module.exports.forgotPassword = async (req, res, next) => {
 //     try {
 //         const {body} = req;

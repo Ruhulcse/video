@@ -4,7 +4,7 @@ require("dotenv").config();
 let dbUrl = process.env.MONGODB_URI;
 
 if (!dbUrl) {
-  _log("Mongo url not set in env file", "red");
+  console.log("Mongo url not set in env file", "red");
   return new Error("Mongo url not set in env file");
 }
 mongoose.connect(
