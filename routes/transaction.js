@@ -1,7 +1,8 @@
 const router = require("express").Router();
 
-const { cost } = require("../controllers/transaction");
+const { cost, createIntend } = require("../controllers/transaction");
 
 router.post("/cost", cost);
+router.post("/payment_check", createIntend);
 
 module.exports = router;
