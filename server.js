@@ -1,9 +1,12 @@
 const express = require("express");
 const app = express();
+const server = require("http").createServer(app);
 const cookieParser = require("cookie-parser");
 const db = require("./db/db");
+const io = require("socket.io")(server, { cors: { origin: "*" } });
 const logger = require("morgan");
 const helmet = require("helmet");
+const socket = require("./socket");
 const routes = require("./routes");
 const auth = require("./middlewares/auth");
 const errorHandler = require("./middlewares/errors");
@@ -51,5 +54,8 @@ const PORT = process.env.PORT || 4000;
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`server listening :${PORT}`);
 });
+
+// socket connection
+socket(io);
 
 module.exports = app;

@@ -26,6 +26,7 @@
     "my-helpmates": "^1.0.0",
     "nodemon": "^2.0.22",
     "openai": "^3.2.1",
+    "socket.io": "^4.7.4",
     "stripe": "^14.14.0",
     "uuid": "^9.0.1",
     "xlsx": "^0.17.5"
