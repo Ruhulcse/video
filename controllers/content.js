@@ -3,52 +3,48 @@ const contentDetailsModel = require("../models/ContentDetails");
 const { ErrorHandler } = require("../utils/error");
 const { generateCode } = require("../helpers/code_generator");
 const XLSX = require("xlsx");
-const { Configuration, OpenAIApi } = require("openai");
+const openAI = require("openai");
 
-const configuration = new Configuration({
+const openai = new openAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
-const openai = new OpenAIApi(configuration);
 
 module.exports.uploadContent = async (req, res, next) => {
-  const { user, file } = req;
+  const { content } = req.body;
+  console.log("api called ");
   try {
-    const dt = XLSX.readFile("public/uploads/" + file.filename);
-    const first_worksheet = dt.Sheets[dt.SheetNames[0]];
-    const data = XLSX.utils.sheet_to_json(first_worksheet, { header: 1 });
-
-    const content = await contentModel.create({
-      code: generateCode(),
-      file_name: file.originalname,
-      created_by: user.id,
+    const promises = content.map((item) => {
+      const totalToken = Math.floor(1.2 * item.length);
+      console.log("total token", totalToken);
+      return openai.completions
+        .create({
+          model: "gpt-3.5-turbo-instruct",
+          prompt: item.title,
+          max_tokens: totalToken,
+          top_p: 1,
+          frequency_penalty: 0,
+          presence_penalty: 0,
+        })
+        .then((response) => {
+          console.log(`response done for item with title: ${item.title}`);
+          return { status: "fulfilled", value: response.choices[0].text };
+        })
+        .catch((err) => {
+          console.error(`error for item with title: ${item.title}`, err);
+          return { status: "rejected", reason: err };
+        });
     });
 
-    for (let i = 1; i < data.length; i++) {
-      const response = await openai.createCompletion({
-        model: "text-davinci-003",
-        prompt: data[i][1],
-        temperature: 0,
-        top_p: 1,
-        n: 1,
-      });
-      const completion = response.data.choices[0].text;
-      // console.log(
-      //   "🚀 ~ file: content.js:33 ~ module.exports.uploadContent= ~ response:",
-      //   response.data.choices,
-      //   completion
-      // );
-      await contentDetailsModel.create({
-        content: content._id,
-        topic: data[i][0],
-        prompt: data[i][1],
-        article: completion,
-      });
-    }
+    const results = await Promise.allSettled(promises);
     res.send({
       status: true,
-      data: data,
+      data: results.map((result, index) => ({
+        title: content[index].title,
+        value: result.status === "fulfilled" ? result.value : result.reason,
+      })),
     });
   } catch (err) {
+    console.log(err);
     console.log(err.message);
     next(err);
   }
