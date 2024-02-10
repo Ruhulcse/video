@@ -28,25 +28,7 @@ app.use("/public", express.static("public"));
 app.use(errorHandler);
 
 app.get("/", function (req, res) {
-  const ipAddress = req.socket.remoteAddress;
-  console.log(ipAddress);
-  console.log(lookup(ipAddress)); // location of the user
-  (async () => {
-    const test = await ipLocation(ipAddress);
-    console.log(test);
-    //=> { latitude: -33.8591, longitude: 151.2002, region: { name: "New South Wales" ... } ... }
-  })();
-  // Check if the visitorId cookie exists
-  if (req.cookies.visitorId) {
-    console.log("Returning visitor with ID:", req.cookies.visitorId);
-    res.send("Welcome back, visitor!");
-  } else {
-    // Assign a unique ID and set it in a cookie
-    const visitorId = uuid.v4();
-    res.cookie("visitorId", visitorId, { maxAge: 24 * 60 * 60 * 1000 }); // Expires in 1 day
-    console.log("New visitor assigned ID:", visitorId);
-    res.send("Hello, new visitor!");
-  }
+  res.send("Welcome back, visitor!");
 });
 
 const PORT = process.env.PORT || 4000;
