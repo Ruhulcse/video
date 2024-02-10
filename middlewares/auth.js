@@ -25,6 +25,7 @@ const checkAuthorization = (payload, req) => {
 module.exports.authorize = async function (req, res, next) {
   let token =
     req.header("authorization") || req.header("token") || req.query.token;
+  token = req.headers.authorization.split(" ")[1];
   if (!token) {
     return next(new Error("user not authorized"));
   }
@@ -35,11 +36,11 @@ module.exports.authorize = async function (req, res, next) {
       .status(401)
       .send(createResponse(null, "auth_user_unauthorized", true));
   // check authorization
-  const checkAuth = checkAuthorization(payload, req);
-  if (!checkAuth)
-    return res
-      .status(401)
-      .send(createResponse(null, "auth_user_unauthorized", true));
+  // const checkAuth = checkAuthorization(payload, req);
+  // if (!checkAuth)
+  //   return res
+  //     .status(401)
+  //     .send(createResponse(null, "auth_user_unauthorized", true));
 
   req.user = payload;
   next();

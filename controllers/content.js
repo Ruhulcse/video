@@ -10,9 +10,16 @@ const openai = new openAI({
 });
 
 module.exports.uploadContent = async (req, res, next) => {
+  const { user } = req;
+  console.log(user);
   const { content } = req.body;
   console.log("api called ");
   try {
+    const contentData = await contentModel.create({
+      code: generateCode(),
+      total_content: content.length,
+      created_by: user.id,
+    });
     const promises = content.map((item) => {
       const totalToken = Math.floor(1.2 * item.length);
       console.log("total token", totalToken);
@@ -26,22 +33,36 @@ module.exports.uploadContent = async (req, res, next) => {
           presence_penalty: 0,
         })
         .then((response) => {
-          console.log(`response done for item with title: ${item.title}`);
-          return { status: "fulfilled", value: response.choices[0].text };
+          // console.log(`response done for item with title: ${item.title}`);
+          return {
+            status: "fulfilled",
+            value: {
+              content: contentData._id,
+              title: item.title,
+              value: response.choices[0].text,
+            },
+          };
         })
         .catch((err) => {
-          console.error(`error for item with title: ${item.title}`, err);
+          // console.error(`error for item with title: ${item.title}`, err);
           return { status: "rejected", reason: err };
         });
     });
 
     const results = await Promise.allSettled(promises);
+    // const finaloutput = [];
+    const finaloutput = results.map((item) => {
+      return item.value.value;
+      // finaloutput.push(item.value.value);
+    });
+
+    // console.log("result ", results);
+    console.log("final output ", finaloutput);
+    await contentDetailsModel.create(finaloutput);
+
     res.send({
       status: true,
-      data: results.map((result, index) => ({
-        title: content[index].title,
-        value: result.status === "fulfilled" ? result.value : result.reason,
-      })),
+      data: true,
     });
   } catch (err) {
     console.log(err);

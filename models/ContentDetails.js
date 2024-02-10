@@ -9,18 +9,14 @@ const contentDetailsSchema = new Schema(
       type: objectID,
       ref: "Content",
     },
-    topic: {
+    title: {
       type: String,
       trim: true,
     },
-    prompt: {
+    value: {
       type: String,
       trim: true,
       required: true,
-    },
-    article: {
-      type: String,
-      trim: true,
     },
   },
   { timestamps: true }

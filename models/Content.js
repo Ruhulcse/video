@@ -9,8 +9,8 @@ const contentSchema = new Schema(
       type: String,
       trim: true,
     },
-    file_name: {
-      type: String,
+    total_content: {
+      type: Number,
       trim: true,
       required: true,
     },
