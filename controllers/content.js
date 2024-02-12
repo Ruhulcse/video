@@ -159,3 +159,22 @@ module.exports.deleteContentById = async (req, res, next) => {
     next(err);
   }
 };
+module.exports.getContentDetailsById = async (req, res, next) => {
+  try {
+    const content = await contentDetailsModel.find({
+      content: req.params.id,
+    });
+
+    if (!content) {
+      throw new ErrorHandler("Content not found.", 404);
+    }
+
+    res.send({
+      status: true,
+      data: content,
+    });
+  } catch (err) {
+    console.log(err.message);
+    next(err);
+  }
+};
