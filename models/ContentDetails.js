@@ -15,8 +15,6 @@ const contentDetailsSchema = new Schema(
     },
     value: {
       type: String,
-      trim: true,
-      required: true,
     },
   },
   { timestamps: true }
