@@ -43,26 +43,16 @@ module.exports.createUser = async (req, res, next) => {
 
 module.exports.getUsers = async (req, res, next) => {
   try {
-    const { page, limit } = req.query;
-    const pageNum = page ? parseInt(page, 10) : 1;
-    const Limit = limit ? parseInt(limit, 10) : 10;
-    const skip = Limit * (pageNum - 1);
+    // Use the find method with an empty object to retrieve all users
+    const users = await userModel.find({});
 
-    if (page) delete req.query.page;
-    if (limit) delete req.query.limit;
-
-    const users = await userModel
-      .find(req.query)
-      .select({ password: 0 })
-      .limit(Limit)
-      .skip(skip)
-      .sort({ createdAt: "desc" });
-
+    // Send the retrieved users in the response
     res.send({
       status: true,
       data: users,
     });
   } catch (err) {
+    // Log the error and pass it to the next error handler middleware
     console.log(err.message);
     next(err);
   }
