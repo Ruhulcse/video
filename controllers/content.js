@@ -1,5 +1,7 @@
 const contentModel = require("../models/Content");
 const contentDetailsModel = require("../models/ContentDetails");
+const Transaction = require("../models/Transaction.js");
+const User = require("../models/User.js");
 const { ErrorHandler } = require("../utils/error");
 const { generateCode } = require("../helpers/code_generator");
 const XLSX = require("xlsx");
@@ -11,9 +13,13 @@ const openai = new openAI({
 
 module.exports.uploadContent = async (req, res, next) => {
   const { user } = req;
-  console.log(user);
+  // console.log(user);
   const { content } = req.body;
-  console.log("api called ");
+  // console.log("api called ");
+  const total_word = content.reduce((accumulator, currentobject) => {
+    return accumulator + currentobject.length;
+  }, 0);
+  // console.log("total length ", total_word);
   try {
     const contentData = await contentModel.create({
       code: generateCode(),
@@ -26,7 +32,7 @@ module.exports.uploadContent = async (req, res, next) => {
       return openai.completions
         .create({
           model: "gpt-3.5-turbo-instruct",
-          prompt: item.title,
+          prompt: `${item.title} (must be seo friendly)`,
           max_tokens: totalToken,
           top_p: 1,
           frequency_penalty: 0,
@@ -57,8 +63,21 @@ module.exports.uploadContent = async (req, res, next) => {
     });
 
     // console.log("result ", results);
-    console.log("final output ", finaloutput);
+    // console.log("final output ", finaloutput);
     await contentDetailsModel.create(finaloutput);
+    const payload = {
+      total_word,
+      transaction_type: "OUT",
+    };
+    await Transaction.create(payload);
+    // console.log(user.id);
+    await User.findByIdAndUpdate(
+      user.id,
+      {
+        $inc: { total_word: -total_word },
+      },
+      { new: true }
+    );
 
     res.send({
       status: true,
