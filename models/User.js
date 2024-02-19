@@ -33,6 +33,10 @@ const userSchema = new Schema(
       type: Boolean,
       default: true,
     },
+    total_word: {
+      type: Number,
+      default: 0,
+    },
     resetLink: {
       type: String,
       trim: true,
