@@ -23,10 +23,13 @@ module.exports.createUser = async (req, res, next) => {
     console.log("new users ", newUser);
     let token = "";
     const payload = {
-      id: newUser._id,
-      name: newUser.name,
-      role: newUser.role,
-      status: newUser.status,
+      id: user._id,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+      total_word: user.total_word,
+      role: user.role,
+      status: user.status,
       exp: Math.floor(Date.now() / 100) + 60 * 60,
     };
     token = await jwt.encode(secret_key, payload);
@@ -121,6 +124,7 @@ module.exports.loginUser = async (req, res, next) => {
       email: body.email,
       status: { $ne: false },
     });
+    // console.log(user);
     if (!user) {
       throw new ErrorHandler("User unauthorized!.", 401);
     }
@@ -132,7 +136,10 @@ module.exports.loginUser = async (req, res, next) => {
     if (user) {
       const payload = {
         id: user._id,
-        name: user.name,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        email: user.email,
+        total_word: user.total_word,
         role: user.role,
         status: user.status,
         exp: Math.floor(Date.now() / 100) + 60 * 60,
