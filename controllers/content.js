@@ -67,6 +67,7 @@ module.exports.uploadContent = async (req, res, next) => {
     await contentDetailsModel.create(finaloutput);
     const payload = {
       total_word,
+      user_id: user.id,
       transaction_type: "OUT",
     };
     await Transaction.create(payload);

@@ -61,3 +61,19 @@ module.exports.createTransaction = async function (req, res) {
     });
   }
 };
+module.exports.TransactionByUser = async function (req, res) {
+  try {
+    // console.log("api called and data ", req);
+    const user = req.user;
+    const data = req.body;
+    const user_id = user.id;
+    const queryResult = await Transaction.find({ user_id: user_id });
+
+    res.status(200).json(queryResult);
+  } catch (err) {
+    res.status(500).json({
+      statusCode: 500,
+      message: err instanceof Error ? err.message : "Internal server error",
+    });
+  }
+};
