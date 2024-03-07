@@ -11,17 +11,19 @@ const {
   deleteUserById,
   visitor,
   stats,
+  createQuestion,
+  getQuestions,
 } = require("../controllers/user");
 
 // System Routes
 router.get("/health", health.check);
 
 // User Routes
-router.post("/login", loginUser);
+router.post("/createquestion", createQuestion);
 // router.post('/forgot-password', forgotPassword);
 // router.post('/reset-password', resetPassword);
 router.post("/visitor", visitor);
-router.get("/stats", stats);
+router.get("/getquestion", getQuestions);
 router.post("/signup", createUser);
 router.get("/api/users", getUsers);
 router.get("/api/users/:id", getUserById);

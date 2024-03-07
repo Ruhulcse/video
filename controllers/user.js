@@ -1,6 +1,7 @@
 const hash = require("../helpers/password_hash");
 const userModel = require("../models/User");
 const visitorModel = require("../models/Visitor");
+const QuestionModel = require("../models/Question");
 const { ErrorHandler } = require("../utils/error");
 const { jwt } = require("my-helpmates");
 require("dotenv").config();
@@ -220,74 +221,31 @@ module.exports.stats = async (req, res, next) => {
   }
 };
 
-// module.exports.forgotPassword = async (req, res, next) => {
-//     try {
-//         const {body} = req;
-//         const user = await userModel.findOne({email: body.email}).select({password: 0});
-//         if (!user) {
-//             throw new ErrorHandler("User with this email not exists.", 400);
-//         }
-//         const payload = {
-//             id: user._id,
-//             name: user.name,
-//             role: user.role,
-//             company: user.company,
-//             status: user.status,
-//             exp: Math.floor(Date.now() / 100) + (60 * 60)
-//         };
-//         const token = await jwt.encode(secret_key, payload);
-//         let mailOptions = {
-//             from: 'myemail@gmail.com',
-//             to: body.email,
-//             subject: `The subject goes here`,
-//             html: `<h2>Please click on given link to reset your password.</h2>
-//                     <p>${process.env.CLIENT_BASE_URL}/reset-password/${token}</p>`,
-//         };
-//         const updateUser = await userModel.updateOne({resetLink: token}, {new: true});
-//         if (!updateUser) {
-//             throw new ErrorHandler("Reset password link error.", 400);
-//         } else {
-//             let mailInfo = await sendMail(mailOptions);
-//             if (!mailInfo) {
-//                 throw new ErrorHandler("Mail send failed.", 500);
-//             }
-//             res.send({
-//                 status: true,
-//                 message: 'Mail send successfully.'
-//             })
-//         }
-//     } catch (err) {
-// console.log(err.message);
-//         next(err)
-//     }
-// };
+module.exports.createQuestion = async (req, res, next) => {
+  const { body } = req;
 
-// module.exports.resetPassword = async (req, res, next) => {
-//     try {
-//         const {new_password, confirm_password, reset_link} = req.body;
-//         if (new_password !== confirm_password) {
-//             throw new ErrorHandler("Password not match!.", 400);
-//         }
-//         const hashPass = await hash.new(req.body.new_password);
-//         if (reset_link) {
-//             const tokenData = await jwt.decode(secret_key, reset_link);
-//             if (!tokenData) {
-//                 throw new ErrorHandler("Invalid reset token!.", 400);
-//             }
-//             let user = await userModel.findOneAndUpdate({
-//                 _id: tokenData.id,
-//                 company: tokenData.company
-//             }, {password: hashPass}, {new: true});
-//             if (!user) {
-//                 throw new ErrorHandler("User not found.", 404);
-//             }
-//             res.send({
-//                 status: true,
-//                 message: 'Password reset successfully.'
-//             })
-//         }
-//     } catch (err) {
-// console.log(err.message);
-//         next(err)
-//     }
-// };
+  try {
+    const newQuestion = await QuestionModel.create(body);
+
+    res.send({
+      status: true,
+      data: { Question: newQuestion },
+    });
+  } catch (err) {
+    console.log(err.message);
+    next(err);
+  }
+};
+
+module.exports.getQuestions = async (req, res, next) => {
+  try {
+    const allQuestion = await QuestionModel.find({});
+    res.send({
+      status: true,
+      data: { Question: allQuestion },
+    });
+  } catch (err) {
+    console.log(err.message);
+    next(err);
+  }
+};
