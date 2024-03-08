@@ -1,3 +1,3 @@
-const users = require("./users");
+const vote = require("./vote");
 
-module.exports = [users];
+module.exports = [vote];

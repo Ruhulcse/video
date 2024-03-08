@@ -14,6 +14,7 @@ const QuestionSchema = new Schema(
     },
     total_vote: {
       type: Number,
+      default: 0,
     },
   },
   { timestamps: true }
