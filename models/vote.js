@@ -18,6 +18,14 @@ const VoteSchema = new Schema(
       required: true,
       enum: ["upvote", "downvote"],
     },
+    upvote: {
+      type: Boolean,
+      default: false,
+    },
+    downvote: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
