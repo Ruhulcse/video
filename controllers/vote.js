@@ -1,6 +1,3 @@
-const userModel = require("../models/User");
-const QuestionModel = require("../models/Question");
-const voteModel = require("../models/vote");
 const VideoModel = require("../models/Video");
 const watchModel = require("../models/Watch");
 const { ErrorHandler } = require("../utils/error");
@@ -27,39 +24,6 @@ module.exports.getAllVideo = async (req, res, next) => {
     res.send({
       status: true,
       data: { video: newvideo },
-    });
-  } catch (err) {
-    console.log(err.message);
-    next(err);
-  }
-};
-
-module.exports.getQuestions = async (req, res, next) => {
-  try {
-    const ipAddress = req.query.ip;
-    console.log("IP address ", ipAddress);
-    const allQuestions = await QuestionModel.find({}).sort({ total_vote: -1 });
-
-    // Now, for each question, fetch the voting status for the provided IP address
-    const questionsWithVoteStatus = await Promise.all(
-      allQuestions.map(async (question) => {
-        const vote = await voteModel.findOne({
-          question: question._id,
-          voterIP: ipAddress,
-        });
-
-        // Add vote status to the question object
-        return {
-          ...question.toObject(), // Convert mongoose document to plain JavaScript object
-          upvote: vote ? vote.upvote : false,
-          downvote: vote ? vote.downvote : false,
-        };
-      })
-    );
-
-    res.send({
-      status: true,
-      data: { Question: questionsWithVoteStatus },
     });
   } catch (err) {
     console.log(err.message);
@@ -130,5 +94,31 @@ module.exports.recommended = async (req, res, next) => {
   } catch (error) {
     console.error(error);
     res.status(500).send("An error occurred while fetching recommendations");
+  }
+};
+
+module.exports.deleteHistory = async (req, res, next) => {
+  const { ip } = req.body;
+  try {
+    // Delete all entries with the specified IP from the Watch model
+    const result = await watchModel.deleteMany({ ip: ip });
+
+    if (result.deletedCount === 0) {
+      return res
+        .status(404)
+        .json({ message: "No records found for the specified IP to delete." });
+    }
+
+    // Respond with success message if deletion was successful
+    res.status(200).json({
+      message: "Watch history successfully deleted.",
+      deletedCount: result.deletedCount,
+    });
+  } catch (error) {
+    // Handle possible errors during the operation
+    console.error("Failed to delete watch history:", error);
+    res.status(500).json({
+      message: "Failed to delete watch history due to an internal error.",
+    });
   }
 };
