@@ -1,16 +1,31 @@
 const userModel = require("../models/User");
 const QuestionModel = require("../models/Question");
 const voteModel = require("../models/vote");
+const VideoModel = require("../models/Video");
 const { ErrorHandler } = require("../utils/error");
-module.exports.createQuestion = async (req, res, next) => {
+module.exports.createVideo = async (req, res, next) => {
   const { body } = req;
 
   try {
-    const newQuestion = await QuestionModel.create(body);
+    const newvideo = await VideoModel.create(body);
 
     res.send({
       status: true,
-      data: { Question: newQuestion },
+      data: { video: newvideo },
+    });
+  } catch (err) {
+    console.log(err.message);
+    next(err);
+  }
+};
+
+module.exports.getAllVideo = async (req, res, next) => {
+  try {
+    const newvideo = await VideoModel.find({});
+
+    res.send({
+      status: true,
+      data: { video: newvideo },
     });
   } catch (err) {
     console.log(err.message);
@@ -22,7 +37,7 @@ module.exports.getQuestions = async (req, res, next) => {
   try {
     const ipAddress = req.query.ip;
     console.log("IP address ", ipAddress);
-    const allQuestions = await QuestionModel.find({}); // Fetch all questions
+    const allQuestions = await QuestionModel.find({}).sort({ total_vote: -1 });
 
     // Now, for each question, fetch the voting status for the provided IP address
     const questionsWithVoteStatus = await Promise.all(

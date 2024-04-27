@@ -1,12 +1,14 @@
 const router = require("express").Router();
 const {
-  createQuestion,
   getQuestions,
   castVote,
+  createVideo,
+  getAllVideo,
 } = require("../controllers/vote");
 
 // User Routes
-router.post("/createquestion", createQuestion);
+router.post("/createvideo", createVideo);
+router.get("/getallVideo", getAllVideo);
 router.get("/getquestion", getQuestions);
 router.post("/questions/:id/vote", castVote);
 
