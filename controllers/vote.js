@@ -88,7 +88,6 @@ module.exports.watchVideo = async (req, res, next) => {
 
 module.exports.watchHistory = async (req, res, next) => {
   const { ip } = req.body; // 'upvote' or 'downvote'
-
   try {
     const newvideo = await watchModel.find({ ip: ip });
 
@@ -99,5 +98,37 @@ module.exports.watchHistory = async (req, res, next) => {
   } catch (err) {
     console.log(err.message);
     next(err);
+  }
+};
+
+module.exports.recommended = async (req, res, next) => {
+  const { ip } = req.body; // 'upvote' or 'downvote'
+  try {
+    // Retrieve all watch history for a given IP and extract unique genres
+    const watches = await watchModel.find({ ip: ip });
+    let watchedGenres = new Set();
+    watches.forEach((watch) => {
+      watch.genre
+        .split(", ")
+        .forEach((genre) => watchedGenres.add(genre.trim()));
+    });
+
+    // Find videos that have any genre that matches the genres watched by this IP
+    let recommendedVideos = [];
+    const videos = await VideoModel.find({});
+    videos.forEach((video) => {
+      const videoGenres = video.genre.split(", ").map((genre) => genre.trim());
+      const commonGenres = videoGenres.some((genre) =>
+        watchedGenres.has(genre)
+      );
+      if (commonGenres) {
+        recommendedVideos.push(video);
+      }
+    });
+    // Send the recommended videos as a response
+    res.status(200).json(recommendedVideos);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("An error occurred while fetching recommendations");
   }
 };
